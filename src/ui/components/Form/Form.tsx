@@ -14,7 +14,8 @@ interface FormEntry {
   placeholder: string;
   // TODO: Defined a suitable type for extra props
   // This type should cover all different of attribute types
-  extraProps?: HTMLInputElements;
+  //Implemented HTMLInputElements type - Jiban
+  extraProps: HTMLInputElements;
 }
 
 interface FormProps {

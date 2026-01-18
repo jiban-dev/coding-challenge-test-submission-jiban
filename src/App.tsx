@@ -232,6 +232,7 @@ function App() {
         On Click, it must clear all form fields, remove all search results and clear all prior
         error messages
         */}
+        {/* Implemented Reset button - Jiban*/}
         <Button type="button" variant="secondary" onClick={() => {
           resetFields();
           setAddresses([]);

@@ -68,7 +68,7 @@ legend {
   color: var(--color-text-light);
 }
 
-/* Media queries for other screens */
+/* Implemented - Media queries for other screens - Jiban */
 @media (min-width: 640px) {
   body {
     font-size: 18px;

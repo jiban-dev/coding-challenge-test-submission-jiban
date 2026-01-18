@@ -19,10 +19,20 @@ export const addressBookSlice = createSlice({
   reducers: {
     addAddress: (state, action: PayloadAction<Address>) => {
       /** TODO: Prevent duplicate addresses */
-      state.addresses.push(action.payload);
+      //state.addresses.push(action.payload);
+
+      //Implemeted - Check for duplicate address and restrict - Jiban
+      const addressExists = state.addresses.some(
+        (address) => address.id === action.payload.id
+      );
+      if (!addressExists) {
+        state.addresses.push(action.payload);
+      }
     },
     removeAddress: (state, action: PayloadAction<string>) => {
       /** TODO: Write a state update which removes an address from the addresses array. */
+      //Implemented - Remove an added address - Jiban
+      state.addresses = state.addresses.filter((address) => address.id !== action.payload);
     },
     updateAddresses: (state, action: PayloadAction<Address[]>) => {
       state.addresses = action.payload;

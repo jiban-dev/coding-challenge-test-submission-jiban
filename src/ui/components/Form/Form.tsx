@@ -1,15 +1,20 @@
-import React, { FunctionComponent } from 'react';
+import React, { FunctionComponent, InputHTMLAttributes } from 'react';
 
 import Button from '../Button/Button';
 import InputText from '../InputText/InputText';
 import $ from './Form.module.css';
+
+type HTMLInputElements = Omit<React.InputHTMLAttributes<HTMLInputElement>, "value" | "defaultValue"> &
+{
+  value?: string; //capturing all values in string
+};
 
 interface FormEntry {
   name: string;
   placeholder: string;
   // TODO: Defined a suitable type for extra props
   // This type should cover all different of attribute types
-  extraProps: any;
+  extraProps?: HTMLInputElements;
 }
 
 interface FormProps {
@@ -37,7 +42,7 @@ const Form: FunctionComponent<FormProps> = ({
               key={`${name}-${index}`}
               name={name}
               placeholder={placeholder}
-              {...extraProps}
+              {...extraProps as any}
             />
           </div>
         ))}

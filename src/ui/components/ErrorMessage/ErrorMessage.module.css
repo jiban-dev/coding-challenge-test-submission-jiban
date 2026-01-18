@@ -1,0 +1,9 @@
+/* Implemented Error Message Styles - Jiban */
+.error {
+    color: red;
+    background-color: var(--color-background);
+    border: 1px solid red;
+    padding: 8px 12px;
+    margin: 8px 0;
+    border-radius: 4px;
+}

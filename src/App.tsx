@@ -7,6 +7,8 @@ import InputText from "@/components/InputText/InputText";
 import Radio from "@/components/Radio/Radio";
 import Section from "@/components/Section/Section";
 import useAddressBook from "@/hooks/useAddressBook";
+import useFormFields from "@/hooks/useFormFields";
+import ErrorMessage from "@/components/ErrorMessage/ErrorMessage";
 
 import styles from "./App.module.css";
 import { Address as AddressType } from "./types";
@@ -20,11 +22,20 @@ function App() {
    * - Remove all individual React.useState
    * - Remove all individual onChange handlers, like handlePostCodeChange for example
    */
-  const [postCode, setPostCode] = React.useState("");
-  const [houseNumber, setHouseNumber] = React.useState("");
-  const [firstName, setFirstName] = React.useState("");
-  const [lastName, setLastName] = React.useState("");
-  const [selectedAddress, setSelectedAddress] = React.useState("");
+  /* Implemented custom hook - Jiban */
+  const { fields, onFieldChange, resetFields } = useFormFields({
+    postCode: "",
+    houseNumber: "",
+    firstName: "",
+    lastName: "",
+    selectedAddress: "",
+  });
+
+  //const [postCode, setPostCode] = React.useState("");
+  //const [houseNumber, setHouseNumber] = React.useState("");
+  //const [firstName, setFirstName] = React.useState("");
+  //const [lastName, setLastName] = React.useState("");
+  //const [selectedAddress, setSelectedAddress] = React.useState("");
   /**
    * Results states
    */
@@ -38,21 +49,21 @@ function App() {
   /**
    * Text fields onChange handlers
    */
-  const handlePostCodeChange = (e: React.ChangeEvent<HTMLInputElement>) =>
-    setPostCode(e.target.value);
+  // const handlePostCodeChange = (e: React.ChangeEvent<HTMLInputElement>) =>
+  //   setPostCode(e.target.value);
 
-  const handleHouseNumberChange = (e: React.ChangeEvent<HTMLInputElement>) =>
-    setHouseNumber(e.target.value);
+  // const handleHouseNumberChange = (e: React.ChangeEvent<HTMLInputElement>) =>
+  //   setHouseNumber(e.target.value);
 
-  const handleFirstNameChange = (e: React.ChangeEvent<HTMLInputElement>) =>
-    setFirstName(e.target.value);
+  // const handleFirstNameChange = (e: React.ChangeEvent<HTMLInputElement>) =>
+  //   setFirstName(e.target.value);
 
-  const handleLastNameChange = (e: React.ChangeEvent<HTMLInputElement>) =>
-    setLastName(e.target.value);
+  // const handleLastNameChange = (e: React.ChangeEvent<HTMLInputElement>) =>
+  //   setLastName(e.target.value);
 
-  const handleSelectedAddressChange = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => setSelectedAddress(e.target.value);
+  // const handleSelectedAddressChange = (
+  //   e: React.ChangeEvent<HTMLInputElement>
+  // ) => setSelectedAddress(e.target.value);
 
   /** TODO: Fetch addresses based on houseNumber and postCode using the local BE api
    * - Example URL of API: ${process.env.NEXT_PUBLIC_URL}/api/getAddresses?postcode=1345&streetnumber=350
@@ -73,15 +84,16 @@ function App() {
   const handlePersonSubmit = (e: React.ChangeEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (!selectedAddress || !addresses.length) {
+    if (!fields.selectedAddress || !addresses.length) {
       setError(
         "No address selected, try to select an address or find one if you haven't"
       );
       return;
     }
-
+    const firstName = fields.firstName
+    const lastName = fields.lastName
     const foundAddress = addresses.find(
-      (address) => address.id === selectedAddress
+      (address) => address.id === fields.selectedAddress
     );
 
     if (!foundAddress) {
@@ -109,16 +121,16 @@ function App() {
             <div className={styles.formRow}>
               <InputText
                 name="postCode"
-                onChange={handlePostCodeChange}
+                onChange={onFieldChange}
                 placeholder="Post Code"
-                value={postCode}
+                value={fields.postCode}
               />
             </div>
             <div className={styles.formRow}>
               <InputText
                 name="houseNumber"
-                onChange={handleHouseNumberChange}
-                value={houseNumber}
+                onChange={onFieldChange}
+                value={fields.houseNumber}
                 placeholder="House number"
               />
             </div>
@@ -132,14 +144,14 @@ function App() {
                 name="selectedAddress"
                 id={address.id}
                 key={address.id}
-                onChange={handleSelectedAddressChange}
+                onChange={onFieldChange}
               >
                 <Address {...address} />
               </Radio>
             );
           })}
         {/* TODO: Create generic <Form /> component to display form rows, legend and a submit button  */}
-        {selectedAddress && (
+        {fields.selectedAddress && (
           <form onSubmit={handlePersonSubmit}>
             <fieldset>
               <legend>✏️ Add personal info to address</legend>
@@ -147,16 +159,16 @@ function App() {
                 <InputText
                   name="firstName"
                   placeholder="First name"
-                  onChange={handleFirstNameChange}
-                  value={firstName}
+                  onChange={onFieldChange}
+                  value={fields.firstName}
                 />
               </div>
               <div className={styles.formRow}>
                 <InputText
                   name="lastName"
                   placeholder="Last name"
-                  onChange={handleLastNameChange}
-                  value={lastName}
+                  onChange={onFieldChange}
+                  value={fields.lastName}
                 />
               </div>
               <Button type="submit">Add to addressbook</Button>
@@ -165,7 +177,10 @@ function App() {
         )}
 
         {/* TODO: Create an <ErrorMessage /> component for displaying an error message */}
-        {error && <div className="error">{error}</div>}
+        {/*error && <div className="error">{error}</div>*/}
+
+        {/* Implemented Error Message using component - Jiban*/}
+        {error && <ErrorMessage message={error || ""} />}
 
         {/* TODO: Add a button to clear all form fields. 
         Button must look different from the default primary button, see design. 
@@ -173,6 +188,13 @@ function App() {
         On Click, it must clear all form fields, remove all search results and clear all prior
         error messages
         */}
+        <Button type="button" variant="secondary" onClick={() => {
+          resetFields();
+          setAddresses([]);
+          setError("");
+        }}>
+          Clear all fields
+        </Button>
       </Section>
 
       <Section variant="dark">

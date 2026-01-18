@@ -9,6 +9,7 @@ import Section from "@/components/Section/Section";
 import useAddressBook from "@/hooks/useAddressBook";
 import useFormFields from "@/hooks/useFormFields";
 import ErrorMessage from "@/components/ErrorMessage/ErrorMessage";
+import transformAddress from "./core/models/address";
 
 import styles from "./App.module.css";
 import { Address as AddressType } from "./types";
@@ -23,6 +24,7 @@ function App() {
    * - Remove all individual onChange handlers, like handlePostCodeChange for example
    */
   /* Implemented custom hook - Jiban */
+  const [loading, setLoading] = React.useState(false);
   const { fields, onFieldChange, resetFields } = useFormFields({
     postCode: "",
     houseNumber: "",
@@ -74,8 +76,51 @@ function App() {
    * - Ensure to clear previous search results on each click
    * - Bonus: Add a loading state in the UI while fetching addresses
    */
+
+  //Implemented - fetch addresses based on houseNumber and postCode - Jiban
   const handleAddressSubmit = async (e: React.ChangeEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    // Reset previous search
+    setAddresses([]);
+    setError(undefined);
+
+    const { postCode, houseNumber } = fields;
+
+    if (!postCode || !houseNumber) {
+      setError("Postcode and house number are required");
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      const BASE_URL = process.env.NEXT_PUBLIC_URL || "http://localhost:3000";
+
+      const response = await fetch(
+        `${BASE_URL}/api/getAddresses?postcode=${postCode}&streetnumber=${houseNumber}`
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch addresses");
+      }
+
+      const data = await response.json();
+
+      const transformedAddresses = data.details.map((address: any) =>
+        transformAddress({
+          ...address,
+          houseNumber,
+        })
+      );
+      setAddresses(transformedAddresses);
+
+    } catch (err) {
+      setError("Something went wrong while fetching addresses");
+    } finally {
+      setLoading(false);
+    }
+
   };
 
   /** TODO: Add basic validation to ensure first name and last name fields aren't empty
@@ -90,8 +135,7 @@ function App() {
       );
       return;
     }
-    const firstName = fields.firstName
-    const lastName = fields.lastName
+    const { firstName, lastName } = fields
     const foundAddress = addresses.find(
       (address) => address.id === fields.selectedAddress
     );
